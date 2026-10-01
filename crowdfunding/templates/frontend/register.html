@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register - Secure Access</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #1e3c72, #2a5298);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: #fff;
+            padding: 40px;
+            border-radius: 12px;
+            width: 350px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 25px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #2a5298;
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #1e3c72;
+        }
+
+        .otp-section {
+            display: none;
+        }
+
+        .footer {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Create Account</h2>
+    <p>Register securely using your email</p>
+
+    <!-- Email Section -->
+    
+    <input type="email" id="email" placeholder="Enter Email">
+    <input type="Username" id="Username" placeholder="Enter Username">
+    <button onclick="sendOTP()">Send OTP</button>
+
+    <input type="text" id="otp" placeholder="Enter OTP">
+    <button onclick="verifyOTP()">Verify OTP</button>
+    <input type="password" id="password" placeholder="Enter 6 digit passwoord">
+
+    <button onclick="registerUser()">Register<a href="{% url 'login' %}"></a></button>
+
+    <!-- OTP Section -->
+
+
+    <div class="footer">
+        Secure Registration System
+    </div>
+</div>
+<script>
+    let userEmail = "";
+    let isVerified = false;
+
+    function sendOTP() {
+        let email = document.getElementById("email").value;
+
+        fetch(`/send-otp/?email=${email}`)
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message || data.error);
+            userEmail = email;
+        });
+    }
+
+    function verifyOTP() {
+        let otp = document.getElementById("otp").value.trim();
+
+        fetch(`/api/verify-otp/?email=${userEmail}&otp=${otp}`)
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message || data.error);
+
+            if(data.message){
+                isVerified = true; // ✅ important
+            }
+        });
+    }
+
+    function registerUser() {
+        alert("Registration Successfully completed 🎉✅");
+
+       window.location.href = "/login/";
+       if(!isVerified){
+            alert("Please verify OTP first!");
+            return;
+        }
+        
+        
+    
+    }
+
+function resendOTP() {
+    showMessage("OTP resent successfully!", "green");
+}
+
+function showMessage(msg, color) {
+    let messageBox = document.getElementById("message");
+    messageBox.innerText =msg ;
+    messageBox.style.color = color;
+        let password = document.getElementById("password").value;
+
+        fetch(`/api/register/?email=${userEmail}&password=${password}`)
+        .then(res => res.json())
+        .then(data => {
+            alert(data.message || data.error);
+            console.log(data);
+            if(data.message){
+                alert("Registration Successfully completed 🎉");
+                 
+            }else{
+                alert(data.error || "Something went wrong");
+        
+            }
+        });
+    }
+</script>
+
+
+</body>
+</html>
